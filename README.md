@@ -79,7 +79,7 @@ nextflow run nf-core/polyamod \
 nf-core/polyamod was originally written by Sahiti Somalraju.
 
 We thank the following people for their extensive assistance in the development of this pipeline:
-- David Scheper ()
+- David Schaeper ()
 
 ## Contributions and Support
 
