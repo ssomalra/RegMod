@@ -23,7 +23,7 @@ polya+mod automates the simultaneous prediction of poly(A) tail lengths and m6A 
 
 ### Workflow steps:
 **1. Basecalling**
-   Performed using Guppy to convert raw signal data to FASTQ
+   - Performed using Guppy to convert raw signal data to FASTQ
    
 **2. Preprocessing**
    - FASTQ files are converted to FASTA
