@@ -12,42 +12,57 @@
 
 ## Introduction
 
-**nf-core/polyamod** is a bioinformatics pipeline that ...
+**nf-core/polya+mod** is a bioinformatics pipeline that enables joint prediction of poly(A) tail lengths and m6A modifications from ONT direct RNA sequencing data.
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
+<img width="3900" height="850" alt="PolyA_Figure11_PolymodPipeline" src="https://github.com/user-attachments/assets/a7609744-ed8a-483e-ba08-370f089bd460" />
 
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
+This pipeline was implemented in Nextflow (v24.10.5), a domain-specific workflow management system optimized for scalable and reproducible bioinformatics workflows. It uses Docker/Singularity containers making installation trivial and results highly reproducible.
+
+## Pipeline Summary
+polya+mod automates the simultaneous prediction of poly(A) tail lengths and m6A RNA modifications at the transcript- and gene-level.
+
+### Workflow steps:
+**1. Basecalling**
+   Performed using Guppy to convert raw signal data to FASTQ
+   
+**2. Preprocessing**
+   - FASTQ files are converted to FASTA
+   - f5c is used for indexing
+     
+**3. Alignment**
+   - Reads are aligned to user-provided reference genome using minimap2
+   - Resulting BAM files are sorted and indexed using SAMtools
+     
+**4. Downstream Analysis (Two Parallel Paths):**
+   - Nanopolish-polyA: Predictions poly(A) tail lengths
+   - f5c eventalign + m6Anet: Detected m6A modifications
+     
+**5. Annotation:**
+   - A provided GTF file is used to annotate results
+   - Final outputs include:
+     - BED file of m6A modification sites
+     - BED file of polyadenylated transcripts
+
+Outputs are compatible with genome browsers and can be used in exploratory analyses, such as correlating m6A presence with poly(A) tail length. 
 
 ## Usage
 
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
-
 First, prepare a samplesheet with your input data that looks as follows:
 
 `samplesheet.csv`:
 
 ```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome
+CELL_LINE_1,/path/to/fast5/directory/fast5_files,FLO-MIN106,SQK-RNA002,/path/to/reference/genome/Homo_sapiens.GRCh38.cdna.all.fa,/path/to/gtf/file/Homo_sapiens.GRCh38.113_transcripts.gtf
+CELL_LINE_2,/path/to/fast5/directory/fast5_files,FLO-MIN106,SQK-RNA002,/path/to/reference/genome/Homo_sapiens.GRCh38.cdna.all.fa,/path/to/gtf/file/Homo_sapiens.GRCh38.113_transcripts.gtf
 ```
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
-
--->
+Each row represents a study, containing a directory of fast5 files, flowcell ID, and sequencing kit for basecalling, as well as a reference genome and gene annotation file.
 
 Now, you can run the pipeline using:
-
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
 nextflow run nf-core/polyamod \
@@ -64,8 +79,7 @@ nextflow run nf-core/polyamod \
 nf-core/polyamod was originally written by Sahiti Somalraju.
 
 We thank the following people for their extensive assistance in the development of this pipeline:
-
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
+- David Scheper ()
 
 ## Contributions and Support
 
