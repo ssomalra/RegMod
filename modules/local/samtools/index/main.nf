@@ -2,6 +2,8 @@ process SAMTOOLS_INDEX {
 	tag "$meta.id"
 	label 'process_low'
 
+	clusterOptions="-A r00270 --job-name=SAMTOOLS_INDEX"
+
 	conda "bioconda::samtools=1.21"
 	container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
 	'https://depot.galaxyproject.org/singularity/samtools:1.21--h96c455f_1' :
@@ -11,7 +13,7 @@ process SAMTOOLS_INDEX {
 	tuple val(meta), path(sorted_bam) 
 
 	output:
-	tuple val(meta), path("${meta.id}/input_files/"), emit: bai 
+	tuple val(meta), path("*.bai"), emit: bai 
 	path "versions.yml", emit: versions
 
 	script:

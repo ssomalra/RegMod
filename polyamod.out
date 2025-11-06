@@ -1,0 +1,72 @@
+conda version 24.1.2 python 3.11.7 loaded.
+
+ N E X T F L O W   ~  version 25.10.0
+
+Launching `./main.nf` [magical_faggin] DSL2 - revision: c04414b162
+
+WARN: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    There is a problem with your Conda configuration!
+    You will need to set-up the conda-forge and bioconda channels correctly.
+    Please refer to https://bioconda.github.io/
+    The observed channel order is
+    [bioconda, conda-forge, defaults]
+    but the following channel order is required:
+    [conda-forge, bioconda]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+Input/output options
+  input                     : assets/samplesheet.csv
+  outdir                    : polyamod_test
+
+Reference genome options
+  genome                    : R64-1-1
+
+Institutional config options
+  config_profile_name       : Test profile
+  config_profile_description: Minimal test dataset to check pipeline function
+
+Generic options
+  trace_report_suffix       : 2025-11-06_09-51-25
+
+Core Nextflow options
+  runName                   : magical_faggin
+  containerEngine           : singularity
+  launchDir                 : /N/project/NGS-JangaLab/Sahiti/polyA_project/nf-core-polyamod
+  workDir                   : /N/project/NGS-JangaLab/Sahiti/polyA_project/nf-core-polyamod/work
+  projectDir                : /N/project/NGS-JangaLab/Sahiti/polyA_project/nf-core-polyamod
+  userName                  : ssomalra
+  profile                   : test,conda,singularity
+  configFiles               : /N/project/NGS-JangaLab/Sahiti/polyA_project/nf-core-polyamod/nextflow.config
+
+!! Only displaying parameters that differ from the pipeline defaults !!
+------------------------------------------------------
+WARN: The following invalid input values have been detected:
+
+* --merged_output: merged_reads
+* --guppy_package: /N/slate/ssomalra/Packages/ont-guppy-cpu
+* --gpu_runners_per_device: 1
+* --n_processes: 4
+* --num_iterations: 1000
+* --email: null
+
+
+[-        ] NFC…OD:POLYAMOD:GUPPY_BASECALL -
+[-        ] NFC…LYAMOD:POLYAMOD:PREP_FASTQ -
+[-        ] NFC…OLYAMOD:POLYAMOD:F5C_INDEX -
+[-        ] NFC…OD:POLYAMOD:MINIMAP2_ALIGN -
+[-        ] NFC…POLYAMOD:POLYAMOD:SAMTOOLS -
+[-        ] NFC…LYAMOD:POLYAMOD:BAM_TO_BED -
+
+[-        ] NFC…OD:POLYAMOD:GUPPY_BASECALL -
+[-        ] NFC…LYAMOD:POLYAMOD:PREP_FASTQ -
+[-        ] NFC…OLYAMOD:POLYAMOD:F5C_INDEX -
+[-        ] NFC…OD:POLYAMOD:MINIMAP2_ALIGN -
+[-        ] NFC…POLYAMOD:POLYAMOD:SAMTOOLS -
+[-        ] NFC…LYAMOD:POLYAMOD:BAM_TO_BED -
+[-        ] NFC…:POLYAMOD:NANOPOLISH_POLYA -
+[-        ] NFC…OD:POLYAMOD:ANNOTATE_POLYA -
+[-        ] NFC…OD:POLYAMOD:F5C_EVENTALIGN -
+Process `NFCORE_POLYAMOD:POLYAMOD:M6ANET` declares 1 input but was called with 2 arguments
+
+ -- Check script 'workflows/polyamod.nf' at line: 112 or see '.nextflow.log' file for more details
+

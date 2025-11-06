@@ -7,13 +7,12 @@ include { GUPPY_BASECALL         } from '../modules/local/guppy/main.nf'
 include { PREP_FASTQ             } from '../modules/local/prep_fastq/main.nf'  
 include { F5C_INDEX              } from '../modules/local/f5c/index/main.nf'
 include { MINIMAP2_ALIGN         } from '../modules/local/minimap/main.nf'
-include { SAMTOOLS_FLAGSTAT_VIEW } from '../modules/local/samtools/flagstat_view/main.nf'
-include { SAMTOOLS_SORT		 } from '../modules/local/samtools/sort/main.nf'
-include { SAMTOOLS_INDEX	 } from '../modules/local/samtools/index/main.nf'
+include { SAMTOOLS               } from '../modules/local/samtools/main.nf'
+include { BAM_TO_BED             } from '../modules/local/bedtools/main.nf'
 include { NANOPOLISH_POLYA 	 } from '../modules/local/nanopolish/main.nf'
 include { F5C_EVENTALIGN	 } from '../modules/local/f5c/eventalign/main.nf'
-include { M6ANET_DATAPREP	 } from '../modules/local/m6anet/dataprep/main.nf'
-include { M6ANET_INFERENCE	 } from '../modules/local/m6anet/inference/main.nf'
+include { M6ANET		 } from '../modules/local/m6anet/main.nf'
+include { ANNOTATE_POLYA	 } from '../modules/local/annotate/annotate_polyA/main.nf'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 /*
@@ -48,7 +47,7 @@ workflow POLYAMOD {
     // MODULE: Run f5c index
     //
     F5C_INDEX (
-	ch_samplesheet.map{sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome,gtf -> tuple(sample,fast5_dir)},
+	GUPPY_BASECALL.out.guppy,
 	PREP_FASTQ.out.fasta
     )
 
@@ -56,38 +55,43 @@ workflow POLYAMOD {
     // MODULE: Run minimap2 
     //
     MINIMAP2_ALIGN (
-        ch_samplesheet.map{sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome,gtf -> tuple(sample,reference_genome)},
+	ch_samplesheet.map{sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome,gtf -> tuple(sample,reference_genome)},
 	PREP_FASTQ.out.fasta
     )
 
     //
-    // MODULE: Samtools flagstat and view
+    // MODULE: Samtools flagstat, view, sort, and index
     // 
-    SAMTOOLS_FLAGSTAT_VIEW (
+    SAMTOOLS (
 	MINIMAP2_ALIGN.out.sam
     )
 
-    // 
-    // MODULE: Samtools sort
     //
-    SAMTOOLS_SORT (
-	SAMTOOLS_FLAGSTAT_VIEW.out.bam
-    )
-
+    // MODULE: Run Bedtools bamtobed
     //
-    // MODULE: Samtools index
-    //
-    SAMTOOLS_INDEX (
-	SAMTOOLS_SORT.out.sorted_bam
+    BAM_TO_BED (
+	SAMTOOLS.out.sorted_bam
     )
 
     //
     // MODULE: Run nanopolish poly(A)
-    // 
+    //
     NANOPOLISH_POLYA (
-        ch_samplesheet.map{sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome,gtf -> tuple(sample,reference_genome,gtf)},
+	ch_samplesheet.map{sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome,gtf -> tuple(sample,reference_genome)},
 	PREP_FASTQ.out.fasta,
-	SAMTOOLS_SORT.out.sorted_bam
+	F5C_INDEX.out.fasta_index,
+	GUPPY_BASECALL.out.guppy,
+	SAMTOOLS.out.sorted_bam,
+	SAMTOOLS.out.bai,
+	BAM_TO_BED.out.reads_bed
+    )
+
+    //
+    // MODULE: Run polyA annotation python file
+    //
+    ANNOTATE_POLYA (
+        NANOPOLISH_POLYA.out.polya_reads,
+        ch_samplesheet.map{sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome,gtf -> tuple(sample,gtf)}
     )
 
     //
@@ -95,23 +99,35 @@ workflow POLYAMOD {
     // 
     F5C_EVENTALIGN (
 	ch_samplesheet.map{sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome,gtf -> tuple(sample,reference_genome)},
+	GUPPY_BASECALL.out.guppy,
 	PREP_FASTQ.out.fasta,
-	SAMTOOLS_SORT.out.sorted_bam
+	F5C_INDEX.out.fasta_index,
+	SAMTOOLS.out.sorted_bam,
+	SAMTOOLS.out.bai
     )
 
     //
-    // MODULE: Run m6anet dataprep
+    // MODULE: Run m6anet
     //
-    M6ANET_DATAPREP (
- 	F5C_EVENTALIGN.out.eventalign_output
+    M6ANET (
+ 	F5C_EVENTALIGN.out.eventalign_output,
+	BAM_TO_BED.out.reads_bed
     )
 
     //
-    // MODULE: Run m6anet inference
+    // MODULE: Get m6A coordinates
     //
-    M6ANET_INFERENCE (
-	ch_samplesheet.map{sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome,gtf -> tuple(sample,gtf)},
-	M6ANET_DATAPREP.out.dataprep
+    M6A_COORDINATES (
+	M6ANET.out.inference,
+	BAM_TO_BED.out.reads_bed
+    )
+
+    //
+    // MODULE: Run m6A annotation python file
+    //
+    ANNOTATE_M6A (
+        M6A_COORDINATES.out.m6A_coordinates,
+        ch_samplesheet.map{sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome,gtf -> tuple(sample,gtf)}
     )
 
     //

@@ -184,11 +184,4 @@ def validateInputParameters() {
     if (!params.guppy_package || params.guppy_package == 'path/to/ont-guppy-cpu') {
         error("Guppy path is not set. Update 'guppy_package' in your config file.")
     }
-
-    def required_columns = ['chr', 'start', 'end', 'strand', 'gene_id', 'transcript_id']
-    def gtf_columns_list = params.gtf_columns.split(' ')
-
-    if (!required_columns.every { it in gtf_columns_list }) {
-        error("'gtf_columns' must contain at least: ${required_columns.join(', ')}. Provided: ${params.gtf_columns}")
-    }
 }

@@ -2,6 +2,9 @@ process F5C_EVENTALIGN {
 	tag "$meta.id"
 	label 'process_high'
 
+	clusterOptions = '--partition=gpu --gpus=1 --time=1-23:59:00 --mail-user=ssomalra@iu.edu --mail-type=BEGIN,END,FAIL --account=r00270'
+	beforeScript = 'module load python/gpu'
+
 	conda "bioconda::f5c=1.5"
 	container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/f5c:1.5--hee927d3_2' :
@@ -9,8 +12,11 @@ process F5C_EVENTALIGN {
 
 	input:
 	tuple val(meta), path(reference_genome)
-	path(fasta)
-	path(sorted_bam)
+	tuple val(meta), path(guppy)
+	tuple val(meta), path(fasta)
+	tuple val(meta), path(fasta_index)
+	tuple val(meta), path(sorted_bam)
+	tuple val(meta), path(bai)
 
 	output:
 	tuple val(meta), path("${meta.id}_eventalign.txt"), emit: eventalign_output

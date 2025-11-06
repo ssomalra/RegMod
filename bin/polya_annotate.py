@@ -1,51 +1,50 @@
+import pyranges as pr
 import pandas as pd
 import os
 import argparse
 
-def annotate_polya(nanopolish_input, gtf_input, gtf_columns=None):
+def annotate_polya(polya_bed, gtf_input, id):
     """
     Annotates nanopolish polyA results using GTF information
 
     Parameters:
-    - nanopolish_input: path to nanopolish polya TSV file
+    - polya_bed: path to BED file containing read information and corresponding polyA tail lengths
     - gtf_input: path to GTF file
-    - gtf_columns: list of column names for the GTF file.
+    - id: sample ID for output filename
     """
 
-    # default column names for GTF if not provided
-    default_gtf_columns = ['chr', 'start', 'end', 'strand', 'gene_id', 'transcript_id', 'gene_name', 'gene_ann', 'transcript_name', 'transcript_ann']
-    
-    # use user-defined column names if given, else use defaults
-    gtf_columns = gtf_columns if gtf_columns else default_gtf_columns
-    
-    # read nanopolish polya input file
-    nanopolish_df = pd.read_csv(nanopolish_input, sep="\t")
-    nanopolish_df.rename(columns={"contig": "transcript_id"}, inplace=True)
-
-    # filter by QC tag
-    filtered_df = nanopolish_df[nanopolish_df["qc_tag"] == "PASS"]
-    filtered_df["transcript_id"] = filtered_df["transcript_id"].str.split(".").str[0]
+    # read polya input file
+    polya_df = pd.read_csv(polya_bed, sep="\t", header=None, names=["Chromosome", "Start", "End", "Read_ID", "Score", "Strand", "PolyA_Length"])
+    polya_pr = pr.PyRanges(polya_df)
 
     # read GTF file
-    gtf_df = pd.read_csv(gtf_input, sep='\t', names=gtf_columns, low_memory=False)
+    gtf = pr.read_gtf(gtf_input)
+
+    # perform strand-specific intersection
+    intersected = polya_pr.join(gtf, strandedness="same")
     
-    # merge the data to annotate
-    merged_df = filtered_df.merge(gtf_df, on='transcript_id', how='left')
+    # format final output
+    final_df = intersected.df[
+    ["Chromosome", "Start", "End", "Read_ID", "Score", "Strand", "PolyA_Length", # polyadenylated read info
+     "Feature", "Start_b", "End_b", "Strand",  # GTF info
+     "gene_id", "gene_name", "gene_biotype",
+     "transcript_id", "transcript_name", "transcript_biotype",
+     "exon_number", "exon_id", "protein_id", "ccds_id"]
+    ]
 
     # save the output
-    output_dir = os.path.dirname(nanopolish_input)
-    output_path = os.path.join(output_dir, "nanopolish_annotated.tsv")
-    merged_df.to_csv(output_path, sep='\t', index=False)
+    output_dir = os.path.dirname(polya_bed)
+    output_path = os.path.join(output_dir, f"{args.id}_polyA_annotated.tsv")
+    final_df.to_csv(output_path, sep='\t', index=False)
     print(f"Annotated file saved to {output_path}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Annotate Nanopolish PolyA results")
-    parser.add_argument('--input', required=True, help="Path to Nanopolish polya TSV file")
+    parser.add_argument('--input', required=True, help="Path to BED file containing read information and corresponding polyA tail lengths")
     parser.add_argument('--gtf', required=True, help="Path to GTF file")
-    parser.add_argument('--gtf_columns', nargs='+', default=None, help="List of column names in the GTF file (space-separated)")
-    
+    parser.add_argument('--id', required=True, help="Sample ID for output filename")
     args = parser.parse_args()
 
     # call the function with the parsed arguments
-    annotate_polya(args.input, args.gtf, args.gtf_columns)
+    annotate_polya(args.input, args.gtf, args.id)
     
