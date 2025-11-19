@@ -2,8 +2,6 @@ process SAMTOOLS {
 	tag "$meta.id"
 	label "process_medium"
 
-	clusterOptions = '--time=1-23:59:00 --mail-user=ssomalra@iu.edu --mail-type=BEGIN,END,FAIL --account=r00270'
-
 	conda "bioconda::samtools=1.21"
 	container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
 	'https://depot.galaxyproject.org/singularity/samtools:1.21--h96c455f_1' :

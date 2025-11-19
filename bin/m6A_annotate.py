@@ -33,7 +33,7 @@ def annotate_m6A(m6A_coords, gtf_input, id):
 
     # save the output
     output_dir = os.path.dirname(m6A_coords)
-    output_path = os.path.join(output_dir, f"{args.id}_m6a_annotated.tsv")
+    output_path = os.path.join(output_dir, f"{id}_m6A_annotated.tsv")
     final_df.to_csv(output_path, sep='\t', index=False)
     print(f"Annotated file saved to {output_path}")
 

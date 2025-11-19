@@ -1,6 +1,6 @@
 process M6ANET {
 	tag "$meta.id"
-	label 'process_medium'
+	label "process_medium"
 
 	clusterOptions="-A r00270 --time=1-23:59:00 --mail-user=ssomalra@iu.edu --mail-type=BEGIN,END,FAIL --job-name=M6ANET"
 

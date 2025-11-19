@@ -2,8 +2,6 @@ process PREP_FASTQ {
 	tag "$meta.id"
 	label 'process_low'
 	
-	clusterOptions="-A r00270 --job-name=PREP_FASTQ --mail-user=ssomalra@iu.edu --mail-type=BEGIN,END,FAIL"
-
 	input:
 	tuple val(meta), path(guppy) // directory containing 'pass' FASTQ files
 

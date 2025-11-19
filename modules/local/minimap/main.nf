@@ -2,8 +2,6 @@ process MINIMAP2_ALIGN {
 	tag "$meta.id"
 	label 'process_high'
 
-	clusterOptions = '--time=1-23:59:00 --mail-user=ssomalra@iu.edu --mail-type=BEGIN,END,FAIL --account=r00270'
-
 	conda "bioconda::minimap2=2.17"
 	container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/minimap2:2.17--hed695b0_3' :

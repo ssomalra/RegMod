@@ -15,13 +15,20 @@ def annotate_polya(polya_bed, gtf_input, id):
 
     # read polya input file
     polya_df = pd.read_csv(polya_bed, sep="\t", header=None, names=["Chromosome", "Start", "End", "Read_ID", "Score", "Strand", "PolyA_Length"])
+    print("First 5 rows of polya_df:")
+    print(polya_df.head())
+    
     polya_pr = pr.PyRanges(polya_df)
 
     # read GTF file
     gtf = pr.read_gtf(gtf_input)
+    print("First 5 rows of GTF:")
+    print(gtf.df.head())
 
     # perform strand-specific intersection
     intersected = polya_pr.join(gtf, strandedness="same")
+    print("First 5 rows of intersected:")
+    print(intersected.df.head())
     
     # format final output
     final_df = intersected.df[
@@ -34,7 +41,7 @@ def annotate_polya(polya_bed, gtf_input, id):
 
     # save the output
     output_dir = os.path.dirname(polya_bed)
-    output_path = os.path.join(output_dir, f"{args.id}_polyA_annotated.tsv")
+    output_path = os.path.join(output_dir, f"{id}_polyA_annotated.tsv")
     final_df.to_csv(output_path, sep='\t', index=False)
     print(f"Annotated file saved to {output_path}")
 

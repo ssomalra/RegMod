@@ -2,8 +2,8 @@ process F5C_INDEX {
 	tag "$meta.id"
 	label 'process_high'
 
-	clusterOptions = '--partition=gpu --gpus=1 --time=1-23:59:00 --mail-user=ssomalra@iu.edu --mail-type=BEGIN,END,FAIL --account=r00270'
-	beforeScript = 'module load python/gpu; module load apptainer'
+	queue 'gpu'
+	beforeScript = 'module load python/gpu'
 
 	conda "bioconda::f5c=1.5"
 	container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

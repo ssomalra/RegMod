@@ -1,2 +1,2 @@
 sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome,gtf
-HEK293,/N/project/NGS-JangaLab/Sahiti/polyA_project/HEK293_new/subset_fast5/,FLO-MIN106,SQK-RNA002,/N/project/NGS-JangaLab/Sahiti/polyA_project/Homo_sapiens.GRCh38.dna.primary_assembly.fa,/N/project/NGS-JangaLab/Sahiti/polyA_project/Homo_sapiens.GRCh38.113_transcripts.gtf
+CELL_LINE,/path/to/fast5/directory/fast5_files/,FLO-MIN106,SQK-RNA002,/path/to/reference/genome/Homo_sapiens.GRCh38.dna.primary_assembly.fa,/path/to/gtf/file/Homo_sapiens.GRCh38.113.gtf

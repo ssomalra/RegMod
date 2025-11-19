@@ -45,6 +45,6 @@
 		"description": "Path to the gene annotation file in GTF format"
 	    }		
         },
-        "required": ["sample", "fast5_dir", "flowcell_id","sequencing_kit","reference_genome", "gtf"]
+        "required": ["sample", "fast5_dir", "flowcell_id", "sequencing_kit", "reference_genome", "gtf"]
     }
 }

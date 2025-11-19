@@ -1,8 +1,9 @@
 process GUPPY_BASECALL {
 	tag "$meta.id"
 	label 'process_high'
+	
+	queue 'gpu'
 
-	clusterOptions = '--partition=gpu --gpus=1 --time=1-23:59:00 --mail-user=ssomalra@iu.edu --mail-type=BEGIN,END,FAIL --account=r00270'
 	beforeScript = 'module load python/gpu'
 
 	input:

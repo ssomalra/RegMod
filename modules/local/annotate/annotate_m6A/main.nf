@@ -2,8 +2,6 @@ process ANNOTATE_M6A {
         tag "$meta.id"
         label 'process_low'
 
-        clusterOptions = '--time=1-23:59:00 --mail-user=ssomalra@iu.edu --mail-type=BEGIN,END,FAIL --account=r00270 --job-name=ANNOTATE_M6A'
-
 	conda "bioconda::pyranges=0.1.4"
 	container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
 	'https://depot.galaxyproject.org/singularity/pyranges:0.1.2--pyhdfd78af_1' :
@@ -21,7 +19,7 @@ process ANNOTATE_M6A {
 	# run m6A annotation script
         python ${projectDir}/bin/m6A_annotate.py \
            --input $m6A_coordinates \
-           --gtf $gtf
-	   --id $id
+           --gtf $gtf \
+	   --id ${meta.id}
 	"""
 }

@@ -1,8 +1,6 @@
 process M6A_COORDINATES {
         tag "$meta.id"
-        label 'process_low
-
-        clusterOptions = '--time=1-23:59:00 --mail-user=ssomalra@iu.edu --mail-type=BEGIN,END,FAIL --account=r00270 --job-name=M6A_COORDINATES'
+        label 'process_low'
 
 	conda "bioconda::bedtools=2.31.1"
 	container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -14,28 +12,39 @@ process M6A_COORDINATES {
         tuple val(meta), path(reads_bed)
 
 	output:
-	tuple val(meta), path(${meta.id}_m6A_coordinates_strand.tsv), emit: m6A_coordinates
+	tuple val(meta), path("${meta.id}_m6A_coordinates_strand.tsv"), emit: m6A_coordinates
 
 	script:
 	"""
 	# convert CSV to TSV
-	sed 's/,/\t/g' ${inference}/data.site_proba.csv > data.site_proba.tsv
+	sed 's/,/\\t/g' ${inference}/data.site_proba.csv > data.site_proba.tsv
 
 	# get m6A coordinates
-	awk -F'\t' -v OFS='\t' 'NR > 1 {print $1, $2, $2 + 1}' data.site_proba.tsv > m6A_coordinates.tsv
+	awk -F'\\t' -v OFS='\\t' 'NR > 1 {print \$1, \$2, \$2 + 1}' data.site_proba.tsv > m6A_coordinates.tsv
 
 	# get strand information from reads BED file
 	bedtools intersect -wa -wb -a m6A_coordinates.tsv -b $reads_bed > m6A_strand.tsv
 
-	awk 'BEGIN {OFS="\t"}
+	awk -v OFS="\t" '
+	# First pass: read m6A_strand.tsv and collect unique coordinate|strand pairs
 	FNR==NR {
-  		key = $1 FS $2 FS $3
-  		strand[key][$9] = 1  # collect unique strands per coordinate
-  		next
+		coord = \$1 FS \$2 FS \$3
+		strand = \$9
+		key = coord "|" strand
+		uniq[key] = 1
+		next
 	}
+
+	# Second pass: print coordinate + each unique strand
 	{
-  		key = $1 FS $2 FS $3
-  		for (s in strand[key]) {
-    		print $0, s
-  	}
-	}' m6A_strand.tsv m6A_coordinates.tsv > ${meta.id}_m6A_coordinates_strand.tsv
+		coord = \$1 FS \$2 FS \$3
+		for (k in uniq) {
+			split(k, arr, "|")
+		if (arr[1] == coord)
+			print \$1, \$2, \$3, arr[2]
+		}
+	}
+	'  m6A_strand.tsv m6A_coordinates.tsv > ${meta.id}_m6A_coordinates_strand.tsv
+	#awk -v OFS="\\t" 'FNR==NR {key=\$1 FS \$2 FS \$3; strand[key][\$9]=1; next} {key=\$1 FS \$2 FS \$3; for(s in strand[key]) print \$0, s}' m6A_strand.tsv m6A_coordinates.tsv > ${meta.id}_m6A_coordinates_strand.tsv
+	"""
+}
