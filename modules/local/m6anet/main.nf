@@ -1,6 +1,8 @@
-process M6ANET_DATAPREP {
+process M6ANET {
 	tag "$meta.id"
-	label 'process_medium'
+	label "process_medium"
+
+	clusterOptions="-A r00270 --time=1-23:59:00 --mail-user=ssomalra@iu.edu --mail-type=BEGIN,END,FAIL --job-name=M6ANET"
 
 	conda "bioconda::m6anet==2.1.0"
 	container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -12,11 +14,13 @@ process M6ANET_DATAPREP {
 	
 	output:
 	tuple val(meta), path("${meta.id}_m6Anet_dataprep"), emit: dataprep
+	tuple val(meta), path("${meta.id}_m6Anet_inference"), emit: inference
 	path "versions.yml", emit: versions
 
 	script:
 	"""
 	m6anet dataprep --eventalign $eventalign_output --out_dir ${meta.id}_m6Anet_dataprep --n_processes ${params.n_processes}
+	m6anet inference --input_dir ${meta.id}_m6Anet_dataprep --out_dir ${meta.id}_m6Anet_inference --n_processes ${task.cpus} --num_iterations ${params.num_iterations}
 
 	cat <<-END_VERSIONS > versions.yml
     	"${task.process}":

@@ -1,6 +1,6 @@
 process MINIMAP2_ALIGN {
 	tag "$meta.id"
-	label 'process_medium'
+	label 'process_high'
 
 	conda "bioconda::minimap2=2.17"
 	container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -9,15 +9,15 @@ process MINIMAP2_ALIGN {
 
 	input:
 	tuple val(meta), path(reference_genome)
-	path(fasta)
+	tuple val(meta), path(fasta)
 
 	output:
-	tuple val(meta), path("${meta.id}_${params.output_name}.sam"), emit: sam
+	tuple val(meta), path("${meta.id}_${params.merged_output}.sam"), emit: sam
 	path "versions.yml", emit: versions
 	
 	script:
 	"""
-    	minimap2 --secondary=no -a -x map-ont $fasta $reference_genome > ${meta.id}_${params.output_name}.sam
+    	minimap2 --secondary=no -a -x map-ont $reference_genome $fasta > ${meta.id}_${params.merged_output}.sam
 
     	cat <<-END_VERSIONS > versions.yml
     	"${task.process}":

@@ -1,2 +1,2 @@
 sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome,gtf
-CELL_LINE,/path/to/fast5/directory/fast5_files,FLO-MIN106,SQK-RNA002,/path/to/reference/genome/Homo_sapiens.GRCh38.cdna.all.fa,/path/to/gtf/file/Homo_sapiens.GRCh38.113_transcripts.gtf
+CELL_LINE,/path/to/fast5/directory/fast5_files/,FLO-MIN106,SQK-RNA002,/path/to/reference/genome/Homo_sapiens.GRCh38.dna.primary_assembly.fa,/path/to/gtf/file/Homo_sapiens.GRCh38.113.gtf
