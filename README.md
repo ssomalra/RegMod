@@ -46,21 +46,10 @@ polyaxmod automates the simultaneous prediction and annotation of poly(A) tail l
        - m6Anet predicts m6A modifications at single-nucleotide resolution
        - BEDtools intersect + custom scripts extract m6A site coordinates
        - A Python script annotates each m6A sites
-       - Output: BED file containing m6A modification site locations and corresponding annotations
    - PolyA Path
        - Nanopolish polyA is used to estimate poly(A) tail lengths from signal-level data
        - A Python script annotates poly(A) tail lengths to each read
-       - Output: BED file containing polyadenylated reads, predicted tail lengths, and corresponding annotations
      
-## Final Outputs Summary
-   - m6A site annotation BED file
-   - poly(A) tail annotation BED file
-   - Intermediate files from preprocessing Nanopore data
-
-[add something about awk to filter annotation file here]
-
-Outputs are compatible with genome browsers and can be used in exploratory analyses, such as correlating m6A presence with poly(A) tail length. 
-
 ## Usage
 
 > [!NOTE]
@@ -77,10 +66,8 @@ CELL_LINE_2,/path/to/fast5/directory/fast5_files/,FLO-MIN106,SQK-RNA002,/path/to
 ```
 Each row represents a study, containing a directory of fast5 files, flowcell ID, and sequencing kit for basecalling, as well as a reference genome and gene annotation file.
 
-**Note on Guppy**
-
-A Guppy version *below 6.3.2* must be pre-installed for basecalling, as older versions can output basecalled FAST5 using the `--fast5_out` parameter.
-Update the path to your Guppy installation in `nextflow.config`
+> [!NOTE]
+> A Guppy version *below 6.3.2* must be pre-installed for basecalling, as these versions support generating basecalled FAST5 using the `--fast5_out` option. Be sure to update the path to your Guppy installation in `nextflow.config`.
 
 ### 2. Run the Pipeline
 
@@ -94,9 +81,57 @@ nextflow run nf-core/polyamod \
 > [!WARNING]
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
 
+## Outputs Files
+**m6A annotation BED file:** Contains m6A modification site locations and corresponding annotations
+| Column Names   | Description                                                                                                |
+|:---------------|:-----------------------------------------------------------------------------------------------------------|
+| chromosome     | Chromosome containing the m6A site                                                                         |
+| start          | Start coordinate of the predicted m6A site                                                                 |
+| end            | End coordinate of the predicted m6A site                                                                   |
+| feature        | Annotated feature type (e.g., gene, transcript, exon)                                                      |
+| start_b        | Start coordinate of the annotated feature                                                                  |
+| end_b          | End coordinate of the annotated feature                                                                    |
+| strand         | Strand of the feature (+ or -)                                                                             |
+| fields 8-17    | Additional feature metadata (e.g., gene_id, transcript_id, biotype)                                        |
+
+**poly(A) annotation BED file:** Contains polyadenylated reads, predicted tail lengths, and corresponding annotations
+| Column Names   | Description                                                                                                |
+|:---------------|:-----------------------------------------------------------------------------------------------------------|
+| chromosome     | Chromosome of polyadenylated read                                                                          |
+| start          | Start coordinate of the polyadenylated read                                                                |
+| end            | End coordinate of the polyadenylated read                                                                  |
+| read_id        | Nanopore read identifier                                                                                   |
+| score          | Default BED score field                                                                                    |
+| strand         | Strand of the read (+ or -)                                                                                |
+| polyA_length   | Estimated poly(A) tail length from nanopolish polya                                                        |
+| feature        | Annotated feature type (e.g., gene, transcript, exon)                                                      |
+| start_b        | Start coordinate of the annotated feature                                                                  |
+| end_b          | End coordinate of the annotated feature                                                                    |
+| fields 12-21   | Additional feature metadata (e.g., gene_id, transcript_id, biotype)                                        |
+ 
+### Filtering Annotation Files by Feature
+The annotated BED files can be filtered using `awk` to extract only features of interest (e.g., gene, transcript, 3' UTR)
+
+#### General format
+```
+awk '$4 ~ /{feature_name}/' {m6A/polyA}_annotations.bed > {feature_name}_{m6A/polyA}_annotations.bed
+```
+
+#### Examples:
+**Gene-level m6A sites:** This produces an annotation file containing only m6A sites overlapping gene-level features: gene_id, gene_name, gene_biotype 
+```
+awk '$4 ~ /gene/' m6A_annotations.bed > gene_m6A_annotations.bed
+```
+**Transcript-level m6A sites:** This generates a file containing m6A sites annotated at the transcript level. Because transcripts are nested within genes, this file may include both transcript-level and gene-level metadata (gene_id, gene_name, gene_biotype, transcript_id, transcript_name, transcript_biotype)
+```
+awk '$4 ~ /transcript/' m6A_annotations.bed > transcript_m6A_annotations.bed
+```
+### Downstream Use of Annotation Files
+The annotated BED files produced by polyaxmod are compatible with standard genomics tools and can be directly used for downstream analyses. These include loading the files into genome browsers (e.g., IGV, UCSC Genome Browser) for visual inspection, generating publication-ready plots, performing correlation or enrichment analyses across genomic features, etc. Because the files follow standard BED conventions, they can be easily filtered, merged, or intersected with other datasets for customized exploratory or statistical analyses.
+
 ## Credits
 
-nf-core/polyamod was originally written by Sahiti Somalraju.
+nf-core/polyaxmod was originally written by Sahiti Somalraju.
 
 We thank the following people for their extensive assistance in the development of this pipeline:
 - David Schaeper ()
