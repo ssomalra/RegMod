@@ -3,8 +3,7 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { GUPPY_BASECALL         } from '../modules/local/guppy/main.nf' 
-include { PREP_FASTQ             } from '../modules/local/prep_fastq/main.nf'  
+include { GUPPY_BASECALL         } from '../modules/local/guppy/main.nf'   
 include { F5C_INDEX              } from '../modules/local/f5c/index/main.nf'
 include { MINIMAP2_ALIGN         } from '../modules/local/minimap/main.nf'
 include { SAMTOOLS               } from '../modules/local/samtools/main.nf'
@@ -39,18 +38,10 @@ workflow POLYAMOD {
     )
 
     //
-    // MODULE: Convert fastq to fasta
-    //        
-    PREP_FASTQ (
-        GUPPY_BASECALL.out.guppy
-    )
-
-    //
-    // MODULE: Run f5c index
+    // MODULE: Convert fasta > fastq and run f5c index
     //
     F5C_INDEX (
-	GUPPY_BASECALL.out.guppy,
-	PREP_FASTQ.out.fasta
+	GUPPY_BASECALL.out.guppy
     )
 
     //
@@ -58,7 +49,7 @@ workflow POLYAMOD {
     //
     MINIMAP2_ALIGN (
 	ch_samplesheet.map{sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome,gtf -> tuple(sample,reference_genome)},
-	PREP_FASTQ.out.fasta
+	F5C_INDEX.out.fasta
     )
 
     //
@@ -80,7 +71,7 @@ workflow POLYAMOD {
     //
     NANOPOLISH_POLYA (
 	ch_samplesheet.map{sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome,gtf -> tuple(sample,reference_genome)},
-	PREP_FASTQ.out.fasta,
+	F5C_INDEX.out.fasta,
 	F5C_INDEX.out.fasta_index,
 	GUPPY_BASECALL.out.guppy,
 	SAMTOOLS.out.sorted_bam,
@@ -102,7 +93,7 @@ workflow POLYAMOD {
     F5C_EVENTALIGN (
 	ch_samplesheet.map{sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome,gtf -> tuple(sample,reference_genome)},
 	GUPPY_BASECALL.out.guppy,
-	PREP_FASTQ.out.fasta,
+	F5C_INDEX.out.fasta,
 	F5C_INDEX.out.fasta_index,
 	SAMTOOLS.out.sorted_bam,
 	SAMTOOLS.out.bai

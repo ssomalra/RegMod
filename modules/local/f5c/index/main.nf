@@ -12,15 +12,22 @@ process F5C_INDEX {
 
 	input:
 	tuple val(meta), path(guppy)
-        tuple val(meta), path(fasta)
 
 	output:
+	tuple val(meta), path("${meta.id}_${params.merged_output}.fasta"), emit: fasta
 	tuple val(meta), path("*.index*"), emit: fasta_index
 	path "versions.yml", emit: versions
 
 	script:
 	"""
-	f5c index -d ${guppy}/workspace/ $fasta
+	# Merge FASTQ files from the 'pass' directory
+        cat ${guppy}/pass/*.fastq > ${meta.id}_${params.merged_output}.fastq
+
+	# Convert merged FASTQ to FASTA format
+        sed -n '1~4s/^@/>/p;2~4p' ${meta.id}_${params.merged_output}.fastq > ${meta.id}_${params.merged_output}.fasta
+
+	# Index FASTA file
+	f5c index -d ${guppy}/workspace/ ${meta.id}_${params.merged_output}.fasta
 
 	cat <<-END_VERSIONS > versions.yml
 	"${task.process}":
