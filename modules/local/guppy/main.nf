@@ -3,7 +3,6 @@ process GUPPY_BASECALL {
 	label 'process_high'
 	
 	queue 'gpu'
-
 	beforeScript = 'module load python/gpu'
 
 	input:
