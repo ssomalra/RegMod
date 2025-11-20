@@ -92,7 +92,9 @@ nextflow run nf-core/polyamod \
 | start_b        | Start coordinate of the annotated feature                                                                  |
 | end_b          | End coordinate of the annotated feature                                                                    |
 | strand         | Strand of the feature (+ or -)                                                                             |
-| fields 8-17    | Additional feature metadata (e.g., gene_id, transcript_id, biotype)                                        |
+| n_reads        | The number of reads at the m6A position                                                                    |
+| prob_modified  | The probability that thecl m6A site is modified                                                            |
+| fields 10-19    | Additional feature metadata (e.g., gene_id, transcript_id, biotype)                                       |
 
 **poly(A) annotation BED file:** Contains polyadenylated reads, predicted tail lengths, and corresponding annotations
 | Column Names   | Description                                                                                                |
