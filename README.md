@@ -1,4 +1,4 @@
-# nf-core/polyamod
+# nf-core/polyaxmod
 
 [![GitHub Actions CI Status](https://github.com/nf-core/polyamod/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/polyamod/actions/workflows/ci.yml)
 [![GitHub Actions Linting Status](https://github.com/nf-core/polyamod/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/polyamod/actions/workflows/linting.yml)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
@@ -12,36 +12,52 @@
 
 ## Introduction
 
-**nf-core/polya+mod** is a bioinformatics pipeline that enables joint prediction of poly(A) tail lengths and m6A modifications from ONT direct RNA sequencing data.
+**nf-core/polyaxmod** is a bioinformatics pipeline that enables joint prediction of poly(A) tail lengths and m6A modifications from ONT direct RNA sequencing data.
 
-<img width="3900" height="850" alt="PolyA_Figure11_PolymodPipeline" src="https://github.com/user-attachments/assets/a7609744-ed8a-483e-ba08-370f089bd460" />
+<img width="5406" height="1152" alt="polyAmod_UpdatedPipeline" src="https://github.com/user-attachments/assets/31311fdf-959a-4d81-a1c0-016792b778d9" />
 
-This pipeline was implemented in Nextflow (v24.10.5), a domain-specific workflow management system optimized for scalable and reproducible bioinformatics workflows. It uses Docker/Singularity containers making installation trivial and results highly reproducible.
+This pipeline was implemented in Nextflow (v25.10.0), a domain-specific workflow management system optimized for scalable and reproducible bioinformatics workflows. It uses Docker/Singularity containers making installation trivial and results highly reproducible.
 
 ## Pipeline Summary
-polya+mod automates the simultaneous prediction of poly(A) tail lengths and m6A RNA modifications at the transcript- and gene-level.
+polyaxmod automates the simultaneous prediction and annotation of poly(A) tail lengths and m6A RNA modifications.
 
 ### Workflow steps:
 **1. Basecalling**
-   - Performed using Guppy to convert raw signal data to FASTQ
+   - Performed using Guppy to convert raw FAST5 signal data into FASTQ
    
-**2. Preprocessing**
-   - FASTQ files are converted to FASTA
-   - f5c is used for indexing
+**2. Index FASTA**
+   - FASTQ files are merged into a single file and then converted to FASTA format
+   - f5c index is used to index FASTA inputs for downstream signal-level analyses
      
 **3. Alignment**
    - Reads are aligned to user-provided reference genome using minimap2
-   - Resulting BAM files are sorted and indexed using SAMtools
+
+**4. Binary Index SAM**
+   - Resulting SAM files are converted to BAM format, sorted, and indexed using SAMTools
+   - Alignment summary is also outputted
+
+**5. BAM to BED Conversion**
+   - Sorted BAM files are converted to BED format using BEDtools bamtobed
+   - BED files serve as the backbone for poly(A) and m6A annotations
+  
+**6. Downstream Analysis (Two Parallel Paths):**
+   - m6A Path
+       - f5c eventalign aligns raw signals to the reference
+       - m6Anet predicts m6A modifications at single-nucleotide resolution
+       - BEDtools intersect + custom scripts extract m6A site coordinates
+       - A Python script annotates each m6A sites
+       - Output: BED file containing m6A modification site locations and corresponding annotations
+   - PolyA Path
+       - Nanopolish polyA is used to estimate poly(A) tail lengths from signal-level data
+       - A Python script annotates poly(A) tail lengths to each read
+       - Output: BED file containing polyadenylated reads, predicted tail lengths, and corresponding annotations
      
-**4. Downstream Analysis (Two Parallel Paths):**
-   - Nanopolish-polyA: Predictions poly(A) tail lengths
-   - f5c eventalign + m6Anet: Detected m6A modifications
-     
-**5. Annotation:**
-   - A provided GTF file is used to annotate results
-   - Final outputs include:
-     - BED file of m6A modification sites
-     - BED file of polyadenylated transcripts
+## Final Outputs Summary
+   - m6A site annotation BED file
+   - poly(A) tail annotation BED file
+   - Intermediate files from preprocessing Nanopore data
+
+[add something about awk to filter annotation file here]
 
 Outputs are compatible with genome browsers and can be used in exploratory analyses, such as correlating m6A presence with poly(A) tail length. 
 
@@ -50,19 +66,23 @@ Outputs are compatible with genome browsers and can be used in exploratory analy
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
 
-First, prepare a samplesheet with your input data that looks as follows:
+### 1. Prepare a samplesheet with your input data
 
 `samplesheet.csv`:
 
 ```csv
 sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome
-CELL_LINE_1,/path/to/fast5/directory/fast5_files,FLO-MIN106,SQK-RNA002,/path/to/reference/genome/Homo_sapiens.GRCh38.cdna.all.fa,/path/to/gtf/file/Homo_sapiens.GRCh38.113_transcripts.gtf
-CELL_LINE_2,/path/to/fast5/directory/fast5_files,FLO-MIN106,SQK-RNA002,/path/to/reference/genome/Homo_sapiens.GRCh38.cdna.all.fa,/path/to/gtf/file/Homo_sapiens.GRCh38.113_transcripts.gtf
+CELL_LINE_1,/path/to/fast5/directory/fast5_files/,FLO-MIN106,SQK-RNA002,/path/to/reference/genome/Homo_sapiens.GRCh38.dna.primary_assembly.fa,/path/to/gtf/file/Homo_sapiens.GRCh38.113.gtf
+CELL_LINE_2,/path/to/fast5/directory/fast5_files/,FLO-MIN106,SQK-RNA002,/path/to/reference/genome/Homo_sapiens.GRCh38.dna.primary_assembly.fa,/path/to/gtf/file/Homo_sapiens.GRCh38.113.gtf
 ```
-
 Each row represents a study, containing a directory of fast5 files, flowcell ID, and sequencing kit for basecalling, as well as a reference genome and gene annotation file.
 
-Now, you can run the pipeline using:
+**Note on Guppy**
+
+A Guppy version *below 6.3.2* must be pre-installed for basecalling, as older versions can output basecalled FAST5 using the `--fast5_out` parameter.
+Update the path to your Guppy installation in `nextflow.config`
+
+### 2. Run the Pipeline
 
 ```bash
 nextflow run nf-core/polyamod \
