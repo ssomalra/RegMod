@@ -14,7 +14,7 @@
 
 **nf-core/polyaxmod** is a bioinformatics pipeline that enables joint prediction of poly(A) tail lengths and m6A modifications from ONT direct RNA sequencing data.
 
-<img width="5406" height="1152" alt="polyAmod_UpdatedPipeline" src="https://github.com/user-attachments/assets/798485fb-3f62-4010-8ef1-f0df65296056" />
+<img width="4621" height="1152" alt="polyAmod_Pipeline" src="https://github.com/user-attachments/assets/e9611523-b474-46ec-a5ee-e7f759df96e5" />
 
 This pipeline was implemented in Nextflow (v25.10.0), a domain-specific workflow management system optimized for scalable and reproducible bioinformatics workflows. It uses Docker/Singularity containers making installation trivial and results highly reproducible.
 
