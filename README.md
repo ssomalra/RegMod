@@ -103,13 +103,10 @@ nextflow run nf-core/polyamod \
 | start          | Start coordinate of the polyadenylated read                                                                |
 | end            | End coordinate of the polyadenylated read                                                                  |
 | read_id        | Nanopore read identifier                                                                                   |
-| score          | Default BED score field                                                                                    |
-| strand         | Strand of the read (+ or -)                                                                                |
 | polyA_length   | Estimated poly(A) tail length from nanopolish polya                                                        |
-| feature        | Annotated feature type (e.g., gene, transcript, exon)                                                      |
-| start_b        | Start coordinate of the annotated feature                                                                  |
-| end_b          | End coordinate of the annotated feature                                                                    |
-| fields 12-21   | Additional feature metadata (e.g., gene_id, transcript_id, biotype)                                        |
+| strand         | Strand of the read (+ or -)                                                                                |
+| fields 7-12    | Additional feature metadata (e.g., gene_id, gene_name, transcript_id)                                      |
+| fields 13-18   | Additional nanopolish output columns (e.g., leader_start, polya_start, read_rate)                          |
  
 ### Filtering Annotation Files by Feature
 The annotated BED files can be filtered using `awk` to extract only features of interest (e.g., gene, transcript, 3' UTR)
