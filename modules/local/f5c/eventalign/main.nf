@@ -1,8 +1,8 @@
 process F5C_EVENTALIGN {
 	tag "$meta.id"
 	label 'process_high'
+	label 'gpu'
 
-	queue 'gpu'
 	beforeScript = 'module load python/gpu'
 
 	conda "bioconda::f5c=1.5"
@@ -11,12 +11,7 @@ process F5C_EVENTALIGN {
         'quay.io/biocontainers/f5c:1.5--hee927d3_2' }"
 
 	input:
-	tuple val(meta), path(reference_genome)
-	tuple val(meta), path(guppy)
-	tuple val(meta), path(fasta)
-	tuple val(meta), path(fasta_index)
-	tuple val(meta), path(sorted_bam)
-	tuple val(meta), path(bai)
+	tuple val(meta), path(guppy), path(fasta), path(fasta_index), path(sorted_bam), path(bai), path(reference_genome)
 
 	output:
 	tuple val(meta), path("${meta.id}_eventalign.txt"), emit: eventalign_output
@@ -24,7 +19,7 @@ process F5C_EVENTALIGN {
 
 	script:
 	"""
-	f5c eventalign -r $fasta -b $sorted_bam -g $reference_genome --rna --scale-events > ${meta.id}_eventalign.txt
+	f5c eventalign -r $fasta -b $sorted_bam -g $reference_genome --rna --signal-index --scale-events > ${meta.id}_eventalign.txt
 
 	cat <<-END_VERSIONS > versions.yml
 	"${task.process}":
