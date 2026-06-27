@@ -1,8 +1,8 @@
 process F5C_INDEX {
 	tag "$meta.id"
 	label 'process_high'
+	label 'gpu'
 
-	queue 'gpu'
 	beforeScript = 'module load python/gpu'
 
 	conda "bioconda::f5c=1.5"
@@ -24,7 +24,8 @@ process F5C_INDEX {
         cat ${guppy}/pass/*.fastq > ${meta.id}_${params.merged_output}.fastq
 
 	# Convert merged FASTQ to FASTA format
-        sed -n '1~4s/^@/>/p;2~4p' ${meta.id}_${params.merged_output}.fastq > ${meta.id}_${params.merged_output}.fasta
+        awk 'NR%4==1 {print ">" substr(\$0,2)}
+	     NR%4==2 {print}' ${meta.id}_${params.merged_output}.fastq > ${meta.id}_${params.merged_output}.fasta
 
 	# Index FASTA file
 	f5c index -d ${guppy}/workspace/ ${meta.id}_${params.merged_output}.fasta
