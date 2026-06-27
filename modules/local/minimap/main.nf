@@ -1,6 +1,7 @@
 process MINIMAP2_ALIGN {
 	tag "$meta.id"
 	label 'process_high'
+	label 'cpu'
 
 	conda "bioconda::minimap2=2.17"
 	container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -8,8 +9,7 @@ process MINIMAP2_ALIGN {
         'quay.io/biocontainers/minimap2:2.17--hed695b0_3' }"
 
 	input:
-	tuple val(meta), path(reference_genome)
-	tuple val(meta), path(fasta)
+	tuple val(meta), path(fasta), path(reference_genome)
 
 	output:
 	tuple val(meta), path("${meta.id}_${params.merged_output}.sam"), emit: sam
