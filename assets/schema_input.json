@@ -7,44 +7,44 @@
     "items": {
         "type": "object",
         "properties": {
-            "sample": {
-                "type": "string",
-                "pattern": "^\\S+$",
-                "errorMessage": "Sample name must be provided and cannot contain spaces",
-                "meta": ["id"]
+        "sample": {
+            "type": "string",
+            "pattern": "^\\S+$",
+            "errorMessage": "Sample name must be provided and cannot contain spaces",
+            "meta": ["id"]
             },
-            "fast5_dir": {
-		"type": "string",
-		"format": "directory-path",
-		"exists": true,
-		"pattern": "^\\S+$",
-		"description": "Path to the FAST5 directory"
-            },
+        "fast5_dir": {
+			"type": "string",
+			"format": "directory-path",
+			"exists": true,
+			"pattern": "^\\S+$",
+			"description": "Path to the FAST5 directory"
+        },
 	    "flowcell_id": {
 	    	"type": "string",
-		"pattern": "^\\S+$",
-		"description": "Flowcell ID used for basecalling (e.g., FLO-MIN106, FLO-PRO002)"
+			"pattern": "^\\S+$",
+			"description": "Flowcell ID used for basecalling (e.g., FLO-MIN106, FLO-PRO002)"
 	    },
 	    "sequencing_kit": {
-		"type": "string",
-		"pattern": "^\\S+$",
-		"description": "Sequencing kit used for basecalling (e.g., SQK-RNA002, SQK-LSK109)"
+			"type": "string",
+			"pattern": "^\\S+$",
+			"description": "Sequencing kit used for basecalling (e.g., SQK-RNA002, SQK-LSK109)"
 	    },
-	    "reference_genome": {
+	    "reference": {
 	        "type": "string",
-		"format": "file-path",
-		"exists": true,
- 		"pattern": "^\\S+\\.(fa|fna|fasta)$",
-		"description": "Path to the reference genome"
+			"format": "file-path",
+			"exists": true,
+ 			"pattern": "^\\S+\\.(fa|fna|fasta)$",
+			"description": "Path to the reference transcriptome"
 	    },
 	    "gtf": {
-		"type": "string",
-		"format": "file-path",
-		"exists": true,
-		"pattern": "^\\S+\\.gtf$",
-		"description": "Path to the gene annotation file in GTF format"
+			"type": "string",
+			"format": "file-path",
+			"exists": true,
+			"pattern": "^\\S+\\.gtf$",
+			"description": "Path to the gene annotation file in GTF format"
 	    }		
         },
-        "required": ["sample", "fast5_dir", "flowcell_id", "sequencing_kit", "reference_genome", "gtf"]
+    	"required": ["sample", "fast5_dir", "flowcell_id", "sequencing_kit", "reference", "gtf"]
     }
 }
