@@ -1,6 +1,7 @@
 process SAMTOOLS {
 	tag "$meta.id"
 	label "process_medium"
+	label "cpu"
 
 	conda "bioconda::samtools=1.21"
 	container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
