@@ -80,31 +80,33 @@ nextflow run nf-core/polyamod \
 **m6A annotation BED file:** Contains m6A modification site locations and corresponding annotations
 | Column Names   | Description                                                                                                |
 |:---------------|:-----------------------------------------------------------------------------------------------------------|
-| chromosome     | Chromosome containing the m6A site                                                                         |
-| start          | Start coordinate of the predicted m6A site                                                                 |
-| end            | End coordinate of the predicted m6A site                                                                   |
-| feature        | Annotated feature type (e.g., gene, transcript, exon)                                                      |
-| start_b        | Start coordinate of the annotated feature                                                                  |
-| end_b          | End coordinate of the annotated feature                                                                    |
+| chr            | Chromosome containing the m6A site                                                                         |
+| mod_start      | Start coordinate of the predicted m6A site                                                                 |
+| mod_end        | End coordinate of the predicted m6A site                                                                   |
 | strand         | Strand of the feature (+ or -)                                                                             |
+| feature        | Annotated feature type (e.g., gene, transcript, exon)                                                      |
+| transcript_pos | Transcript start coordinate of the predicted m6A site                                                      |
+| feature_start  | Start coordinate of the annotated feature                                                                  |
+| feature_end    | End coordinate of the annotated feature                                                                    |
 | n_reads        | The number of reads at the m6A position                                                                    |
-| prob_modified  | The probability that thecl m6A site is modified                                                            |
-| fields 10-19    | Additional feature metadata (e.g., gene_id, transcript_id, biotype)                                       |
+| prob_modified  | The probability that the m6A site is modified                                                              |
+| fields 9-12    | m6Anet feaures (e.g., n_reads, probability_modified, kmer, mod_ratio)                                      |
+| fields 13-21   | Additional feature metadata (e.g., gene_id, transcript_id, biotype)                                        |
 
 **poly(A) annotation BED file:** Contains polyadenylated reads, predicted tail lengths, and corresponding annotations
 | Column Names   | Description                                                                                                |
 |:---------------|:-----------------------------------------------------------------------------------------------------------|
-| chromosome     | Chromosome of polyadenylated read                                                                          |
+| chr            | Chromosome of polyadenylated read                                                                          |
 | start          | Start coordinate of the polyadenylated read                                                                |
 | end            | End coordinate of the polyadenylated read                                                                  |
-| read_id        | Nanopore read identifier                                                                                   |
-| polyA_length   | Estimated poly(A) tail length from nanopolish polya                                                        |
+| readname       | Nanopore read identifier                                                                                   |
+| polya_length   | Estimated poly(A) tail length from nanopolish polya                                                        |
 | strand         | Strand of the read (+ or -)                                                                                |
 | fields 7-12    | Additional feature metadata (e.g., gene_id, gene_name, transcript_id)                                      |
 | fields 13-18   | Additional nanopolish output columns (e.g., leader_start, polya_start, read_rate)                          |
  
 ### Filtering Annotation Files by Feature
-The annotated BED files can be filtered using `awk` to extract only features of interest (e.g., gene, transcript, 3' UTR)
+The m6A annotated BED files can be filtered using `awk` to extract only features of interest (e.g., gene, transcript, 3' UTR)
 
 #### General format
 ```
