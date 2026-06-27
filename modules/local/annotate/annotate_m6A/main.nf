@@ -18,8 +18,8 @@ process ANNOTATE_M6A {
 	"""
 	# run m6A annotation script
         python ${projectDir}/bin/m6A_annotate.py \
-           --input ${inference}/data.site_proba.csv \
-           --gtf $gtf \
-	   --id ${meta.id}
+        	--input ${inference}/data.site_proba.csv \
+        	--gtf $gtf \
+	   		--id ${meta.id}
 	"""
 }
