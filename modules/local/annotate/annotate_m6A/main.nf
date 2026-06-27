@@ -1,6 +1,7 @@
 process ANNOTATE_M6A {
         tag "$meta.id"
-        label 'process_low'
+        label 'process_high'
+	label 'cpu'
 
 	conda "bioconda::pyranges=0.1.4"
 	container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -8,8 +9,7 @@ process ANNOTATE_M6A {
 	'quay.io/biocontainers/pyranges:0.1.4--pyhdfd78af_0' }"
 
         input:
-        tuple val(meta), path(m6A_coordinates)
-        tuple val(meta), path(gtf)
+        tuple val(meta), path(inference), path(gtf)
 
 	output:
 	tuple val(meta), path("${meta.id}_m6A_annotated.tsv"), emit: annotated_m6A
@@ -18,7 +18,7 @@ process ANNOTATE_M6A {
 	"""
 	# run m6A annotation script
         python ${projectDir}/bin/m6A_annotate.py \
-           --input $m6A_coordinates \
+           --input ${inference}/data.site_proba.csv \
            --gtf $gtf \
 	   --id ${meta.id}
 	"""
