@@ -55,11 +55,11 @@ polyaxmod automates the simultaneous prediction and annotation of poly(A) tail l
 `samplesheet.csv`:
 
 ```csv
-sample,fast5_dir,flowcell_id,sequencing_kit,reference_genome
+sample,fast5_dir,flowcell_id,sequencing_kit,reference,gtf
 CELL_LINE_1,/path/to/fast5/directory/fast5_files/,FLO-MIN106,SQK-RNA002,/path/to/reference/genome/Homo_sapiens.GRCh38.dna.primary_assembly.fa,/path/to/gtf/file/Homo_sapiens.GRCh38.113.gtf
 CELL_LINE_2,/path/to/fast5/directory/fast5_files/,FLO-MIN106,SQK-RNA002,/path/to/reference/genome/Homo_sapiens.GRCh38.dna.primary_assembly.fa,/path/to/gtf/file/Homo_sapiens.GRCh38.113.gtf
 ```
-Each row represents a study, containing a directory of fast5 files, flowcell ID, and sequencing kit for basecalling, as well as a reference genome and gene annotation file.
+Each row represents a study, containing a directory of fast5 files, flowcell ID, and sequencing kit for basecalling, as well as a reference transcriptome and gene annotation file.
 
 > [!NOTE]
 > A Guppy version *below 6.3.2* must be pre-installed for basecalling, as these versions support generating basecalled FAST5 using the `--fast5_out` option. Be sure to update the path to your Guppy installation in `nextflow.config`.
