@@ -1,6 +1,7 @@
 process ANNOTATE_POLYA {
         tag "$meta.id"
-        label 'process_low'
+        label 'process_medium'
+	label 'cpu'
 
 	conda "bioconda::pyranges=0.1.4"
 	container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -8,8 +9,7 @@ process ANNOTATE_POLYA {
 	'quay.io/biocontainers/pyranges:0.1.4--pyhdfd78af_0' }"
 
         input:
-        tuple val(meta), path(polya_reads)
-        tuple val(meta), path(gtf)
+        tuple val(meta), path(nanopolish_polya), path(gtf)
 
 	output:
 	tuple val(meta), path("${meta.id}_polyA_annotated.tsv"), emit: annotated_polya
@@ -18,7 +18,7 @@ process ANNOTATE_POLYA {
 	"""
 	# run polyA annotation script
         python ${projectDir}/bin/polya_annotate.py \
-           --input $polya_reads \
+           --input $nanopolish_polya \
            --gtf $gtf \
 	   --id ${meta.id}
         """
