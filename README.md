@@ -36,19 +36,14 @@ polyaxmod automates the simultaneous prediction and annotation of poly(A) tail l
    - Resulting SAM files are converted to BAM format, sorted, and indexed using SAMTools
    - Alignment summary is also outputted
 
-**5. BAM to BED Conversion**
-   - Sorted BAM files are converted to BED format using BEDtools bamtobed
-   - BED files serve as the backbone for poly(A) and m6A annotations
-  
-**6. Downstream Analysis (Two Parallel Paths):**
+**5. Downstream Analysis (Two Parallel Paths):**
    - m6A Path
        - f5c eventalign aligns raw signals to the reference
        - m6Anet predicts m6A modifications at single-nucleotide resolution
-       - BEDtools intersect + custom scripts extract m6A site coordinates
        - A Python script annotates each m6A sites
    - PolyA Path
        - Nanopolish polyA is used to estimate poly(A) tail lengths from signal-level data
-       - A Python script annotates poly(A) tail lengths to each read
+       - A Python script annotates poly(A) tail lengths for each read
      
 ## Usage
 
