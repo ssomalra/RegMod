@@ -1,8 +1,8 @@
 process GUPPY_BASECALL {
 	tag "$meta.id"
 	label 'process_high'
+	label 'gpu'
 	
-	queue 'gpu'
 	beforeScript = 'module load python/gpu'
 
 	input:
@@ -18,7 +18,7 @@ process GUPPY_BASECALL {
 	export PATH=\$PATH:${params.guppy_package}/bin
 
 	# run guppy basecalling
-	guppy_basecaller -i $fast5_dir -s ${meta.id}_guppy --flowcell $flowcell_id --kit $sequencing_kit --fast5_out --num_callers ${task.cpus}  --gpu_runners_per_device 1
+	guppy_basecaller -i $fast5_dir -s ${meta.id}_guppy --flowcell $flowcell_id --kit $sequencing_kit --fast5_out --num_callers ${task.cpus}  --gpu_runners_per_device 1 --device auto
 
 	cat <<-END_VERSIONS > versions.yml
 	"${task.process}":
