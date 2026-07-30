@@ -88,8 +88,6 @@ nextflow run nf-core/polyamod \
 | transcript_pos | Transcript start coordinate of the predicted m6A site                                                      |
 | feature_start  | Start coordinate of the annotated feature                                                                  |
 | feature_end    | End coordinate of the annotated feature                                                                    |
-| n_reads        | The number of reads at the m6A position                                                                    |
-| prob_modified  | The probability that the m6A site is modified                                                              |
 | fields 9-12    | m6Anet feaures (e.g., n_reads, probability_modified, kmer, mod_ratio)                                      |
 | fields 13-21   | Additional feature metadata (e.g., gene_id, transcript_id, biotype)                                        |
 
