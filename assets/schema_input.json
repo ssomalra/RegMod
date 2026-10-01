@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/nf-core/polyamod/master/assets/schema_input.json",
-    "title": "nf-core/polyamod pipeline - params.input schema",
+    "$id": "https://raw.githubusercontent.com/nf-core/regmod/master/assets/schema_input.json",
+    "title": "nf-core/regmod pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
     "type": "array",
     "items": {
@@ -10,9 +10,19 @@
         "sample": {
             "type": "string",
             "pattern": "^\\S+$",
-            "errorMessage": "Sample name must be provided and cannot contain spaces",
+            "errorMessage": "Unique sample ID must be provided and cannot contain spaces",
             "meta": ["id"]
-            },
+        },
+		"condition": {
+			"type": "string",
+			"pattern": "^\\S+$",
+			"description": "Experimental condition for the sample (e.g., control, treated)"
+		},
+		"replicate": {
+			"type": "integer",
+			"minimum": 1,
+			"description": "Replicate number for the sample"
+		},
         "fast5_dir": {
 			"type": "string",
 			"format": "directory-path",
@@ -45,6 +55,6 @@
 			"description": "Path to the gene annotation file in GTF format"
 	    }		
         },
-    	"required": ["sample", "fast5_dir", "flowcell_id", "sequencing_kit", "reference", "gtf"]
+    	"required": ["sample", "condition", "replicate", "fast5_dir", "flowcell_id", "sequencing_kit", "reference", "gtf"]
     }
 }
