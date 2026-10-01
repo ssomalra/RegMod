@@ -1,25 +1,25 @@
-# nf-core/polyaxmod
+# nf-core/regmod
 
-[![GitHub Actions CI Status](https://github.com/nf-core/polyamod/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/polyamod/actions/workflows/ci.yml)
-[![GitHub Actions Linting Status](https://github.com/nf-core/polyamod/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/polyamod/actions/workflows/linting.yml)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
+[![GitHub Actions CI Status](https://github.com/nf-core/regmod/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/regmod/actions/workflows/ci.yml)
+[![GitHub Actions Linting Status](https://github.com/nf-core/regmod/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/pregmod/actions/workflows/linting.yml)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
 [![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
 
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A524.04.2-23aa62.svg)](https://www.nextflow.io/)
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
-[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/nf-core/polyamod)
+[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/nf-core/regmod)
 
 ## Introduction
 
-**nf-core/polyaxmod** is a bioinformatics pipeline that enables joint prediction of poly(A) tail lengths and m6A modifications from ONT direct RNA sequencing data.
+**nf-core/regmod** is a bioinformatics pipeline that enables joint prediction of poly(A) tail lengths and m6A modifications from ONT direct RNA sequencing data.
 
-<img width="4621" height="1152" alt="polyAmod_Pipeline" src="https://github.com/user-attachments/assets/e9611523-b474-46ec-a5ee-e7f759df96e5" />
+<img width="4621" height="1152" alt="RegMod_Pipeline" src="https://github.com/user-attachments/assets/e9611523-b474-46ec-a5ee-e7f759df96e5" />
 
 This pipeline was implemented in Nextflow (v25.10.0), a domain-specific workflow management system optimized for scalable and reproducible bioinformatics workflows. It uses Docker/Singularity containers making installation trivial and results highly reproducible.
 
 ## Pipeline Summary
-polyaxmod automates the simultaneous prediction and annotation of poly(A) tail lengths and m6A RNA modifications.
+RegMod automates the simultaneous prediction and annotation of poly(A) tail lengths and m6A RNA modifications.
 
 ### Workflow steps:
 **1. Basecalling**
@@ -67,7 +67,7 @@ Each row represents a study, containing a directory of fast5 files, flowcell ID,
 ### 2. Run the Pipeline
 
 ```bash
-nextflow run nf-core/polyamod \
+nextflow run nf-core/regmod \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
    --outdir <OUTDIR>
@@ -121,11 +121,11 @@ awk '$4 ~ /gene/' m6A_annotations.bed > gene_m6A_annotations.bed
 awk '$4 ~ /transcript/' m6A_annotations.bed > transcript_m6A_annotations.bed
 ```
 ### Downstream Use of Annotation Files
-The annotated BED files produced by polyaxmod are compatible with standard genomics tools and can be directly used for downstream analyses. These include loading the files into genome browsers (e.g., IGV, UCSC Genome Browser) for visual inspection, generating publication-ready plots, performing correlation or enrichment analyses across genomic features, etc. Because the files follow standard BED conventions, they can be easily filtered, merged, or intersected with other datasets for customized exploratory or statistical analyses.
+The annotated BED files produced by RegMod are compatible with standard genomics tools and can be directly used for downstream analyses. These include loading the files into genome browsers (e.g., IGV, UCSC Genome Browser) for visual inspection, generating publication-ready plots, performing correlation or enrichment analyses across genomic features, etc. Because the files follow standard BED conventions, they can be easily filtered, merged, or intersected with other datasets for customized exploratory or statistical analyses.
 
 ## Credits
 
-nf-core/polyaxmod was originally written by Sahiti Somalraju.
+nf-core/regmod was originally written by Sahiti Somalraju.
 
 We thank the following people for their extensive assistance in the development of this pipeline:
 - David Schaeper ()
@@ -137,7 +137,7 @@ If you would like to contribute to this pipeline, please see the [contributing g
 ## Citations
 
 <!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use nf-core/polyamod for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
+<!-- If you use nf-core/regmod for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
 
 <!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 
