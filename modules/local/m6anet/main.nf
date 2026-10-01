@@ -12,8 +12,8 @@ process M6ANET {
 	tuple val(meta), path(eventalign_output)
 	
 	output:
-	tuple val(meta), path("${meta.id}_m6Anet_dataprep"), emit: dataprep
-	tuple val(meta), path("${meta.id}_m6Anet_inference"), emit: inference
+	tuple val(meta), path("${meta.id}_m6Anet_dataprep"), emit: m6anet_dataprep
+	tuple val(meta), path("${meta.id}_m6Anet_inference"), emit: m6anet_inference
 	path "versions.yml", emit: versions
 
 	script:
