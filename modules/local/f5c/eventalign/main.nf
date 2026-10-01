@@ -19,7 +19,7 @@ process F5C_EVENTALIGN {
 
 	script:
 	"""
-	f5c eventalign -r $fasta -b $sorted_bam -g $reference_genome --rna --signal-index --scale-events > ${meta.id}_eventalign.txt
+	f5c eventalign -r $fasta -b $sorted_bam -g $reference_genome --rna --signal-index --scale-events -o ${meta.id}_eventalign.txt
 
 	cat <<-END_VERSIONS > versions.yml
 	"${task.process}":
