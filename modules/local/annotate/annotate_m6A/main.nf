@@ -8,8 +8,8 @@ process ANNOTATE_M6A {
 	'https://depot.galaxyproject.org/singularity/pyranges:0.1.2--pyhdfd78af_1' :
 	'quay.io/biocontainers/pyranges:0.1.4--pyhdfd78af_0' }"
 
-        input:
-        tuple val(meta), path(inference), path(gtf)
+    input:
+    tuple val(meta), path(m6anet_inference), path(gtf)
 
 	output:
 	tuple val(meta), path("${meta.id}_m6A_annotated.tsv"), emit: annotated_m6A
@@ -17,9 +17,9 @@ process ANNOTATE_M6A {
 	script:
 	"""
 	# run m6A annotation script
-        python ${projectDir}/bin/m6A_annotate.py \
-        	--input ${inference}/data.site_proba.csv \
-        	--gtf $gtf \
-	   		--id ${meta.id}
+    python ${projectDir}/bin/m6a_annotate.py \
+        --input ${m6anet_inference}/data.site_proba.csv \
+        --gtf $gtf \
+	   	--id ${meta.id}
 	"""
 }
