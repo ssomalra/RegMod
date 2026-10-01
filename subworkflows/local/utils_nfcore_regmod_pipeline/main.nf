@@ -142,20 +142,40 @@ workflow PIPELINE_COMPLETION {
 def validateInputSamplesheet(input) {
     def (meta, condition, replicate, fast5_dir, flowcell_id, sequencing_kit, reference_genome, gtf) = input[0..7]
        
+    // Validate condition 
+    if (!condition || condition.toString().trim().isEmpty()) {
+        error("Please check input samplesheet -> Condition must be provided for all samples.")
+    }
+
+    // Validate replicate
+    if (!replicate || replicate.toString().trim().isEmpty()) {
+        error("Please check input samplesheet -> Replicate must be provided for all samples.")
+    }
+
+    try {
+        def replicateInt = replicate.toString().toInteger()
+
+        if (replicateInt < 1) {
+            error("Please check input samplesheet -> Replicate must be an integer greater than or equal to 1. Invalid replicate: '${replicate}'")
+        }
+    } catch (NumberFormatException e) {
+        error("Please check input samplesheet -> Replicate must be an integer. Invalid replicate: '${replicate}'")
+    }
+
     // Validate that fast5_dir exists and contains valid .fast5 files
     def fast5Directory = new File(fast5_dir.toString())
     if (!fast5Directory.exists() || !fast5Directory.isDirectory()) {
-	error("Please check input samplesheet -> The directory specified for FAST5 files does not exist or is not a valid directory: ${fast5_dir}")
+	    error("Please check input samplesheet -> The directory specified for FAST5 files does not exist or is not a valid directory: ${fast5_dir}")
     }
 
     def fast5Files = fast5Directory.listFiles({dir, name -> name.endsWith('.fast5') } as FilenameFilter)
     if (fast5Files.length == 0) {
-	error("Please check input samplesheet -> No FAST5 files found in the directory: ${fast5_dir}")
+	    error("Please check input samplesheet -> No FAST5 files found in the directory: ${fast5_dir}")
     }
 
     def emptyFiles = fast5Files.findAll {it.length() == 0}
     if (!emptyFiles.isEmpty()) {
-	error("Please check input samplesheet -> The following FAST5 files are empty: ${emptyFiles*.name.join('\n')}")
+	    error("Please check input samplesheet -> The following FAST5 files are empty: ${emptyFiles*.name.join('\n')}")
     }
  
     // Validate that the reference genome is provided
@@ -170,7 +190,7 @@ def validateInputSamplesheet(input) {
 
     // Validate that the flowcell_id and sequencing_kit are provided
     if (!flowcell_id || !sequencing_kit) {
-	error("Please check input samplesheet -> Flowcell ID and sequencing kit must be specified for basecalling.")
+	    error("Please check input samplesheet -> Flowcell ID and sequencing kit must be specified for basecalling.")
     }
 
     return [meta, condition, replicate, fast5_dir, flowcell_id, sequencing_kit, reference_genome, gtf]
