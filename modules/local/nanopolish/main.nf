@@ -17,8 +17,15 @@ process NANOPOLISH_POLYA {
 
 	script:
 	"""
+	# rename the shared f5c index to match this chunk's fasta filename, since
+	# nanopolish finds index files by filename convention next to --reads
+	for idx in $fasta_index; do
+		suffix=\${idx#*.fasta}
+		ln -s "\$idx" "${fasta}\${suffix}"
+	done
+
 	# run nanopolish polya
-	nanopolish polya --reads $fasta --bam=$sorted_bam --genome=$reference_genome --threads=16 > ${meta.id}_nanopolish_polya.tsv
+	nanopolish polya --reads $fasta --bam=$sorted_bam --genome=$reference_genome --threads=2 > ${meta.id}_nanopolish_polya.tsv
 
 	cat <<-END_VERSIONS > versions.yml
         "${task.process}":
