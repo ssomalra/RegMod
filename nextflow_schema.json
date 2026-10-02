@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/nf-core/polyamod/master/nextflow_schema.json",
-    "title": "nf-core/polyamod pipeline parameters",
+    "$id": "https://raw.githubusercontent.com/nf-core/regmod/master/nextflow_schema.json",
+    "title": "nf-core/regmod pipeline parameters",
     "description": "A Nextflow pipeline designed to analyze RNA at the transcript level, providing poly(A) tail length estimation and RNA modification detection.",
     "type": "object",
     "$defs": {
