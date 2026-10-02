@@ -1,6 +1,6 @@
 {
-    "name": "nf-core/polyamod",
-    "homePage": "https://github.com/nf-core/polyamod",
+    "name": "nf-core/regmod",
+    "homePage": "https://github.com/nf-core/regmod",
     "repos": {
         "https://github.com/nf-core/modules.git": {
             "modules": {
