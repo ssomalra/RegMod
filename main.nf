@@ -1,9 +1,9 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    nf-core/polyamod
+    nf-core/regmod
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/nf-core/polyamod
+    Github : https://github.com/nf-core/regmod
 ----------------------------------------------------------------------------------------
 */
 
@@ -13,9 +13,9 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { POLYAMOD  } from './workflows/polyamod'
-include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_polyamod_pipeline'
-include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_polyamod_pipeline'
+include { REGMOD  } from './workflows/regmod'
+include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_regmod_pipeline'
+include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_regmod_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -26,7 +26,7 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_poly
 //
 // WORKFLOW: Run main analysis pipeline depending on type of input
 //
-workflow NFCORE_POLYAMOD {
+workflow NFCORE_REGMOD {
 
     take:
     samplesheet // channel: samplesheet read in from --input
@@ -36,7 +36,7 @@ workflow NFCORE_POLYAMOD {
     //
     // WORKFLOW: Run pipeline
     //
-    POLYAMOD (
+    REGMOD (
         samplesheet
     )
 }
@@ -65,7 +65,7 @@ workflow {
     //
     // WORKFLOW: Run main workflow
     //
-    NFCORE_POLYAMOD (
+    NFCORE_REGMOD (
         PIPELINE_INITIALISATION.out.samplesheet
     )
     //
