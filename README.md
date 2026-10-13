@@ -13,8 +13,7 @@
 ## Introduction
 
 **nf-core/regmod** is a bioinformatics pipeline that enables joint prediction of poly(A) tail lengths and m6A modifications from ONT direct RNA sequencing data.
-
-<img width="4621" height="1152" alt="RegMod_Pipeline" src="https://github.com/user-attachments/assets/e9611523-b474-46ec-a5ee-e7f759df96e5" />
+<img width="4289" height="1217" alt="RegMod_UpdatedPipeline" src="https://github.com/user-attachments/assets/5614b111-75d7-433a-816b-24405e4cad63" />
 
 This pipeline was implemented in Nextflow (v25.10.0), a domain-specific workflow management system optimized for scalable and reproducible bioinformatics workflows. It uses Docker/Singularity containers making installation trivial and results highly reproducible.
 
