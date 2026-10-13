@@ -18,7 +18,7 @@
 This pipeline was implemented in Nextflow (v25.10.0), a domain-specific workflow management system optimized for scalable and reproducible bioinformatics workflows. It uses Docker/Singularity containers making installation trivial and results highly reproducible.
 
 ## Pipeline Summary
-RegMod automates the simultaneous prediction and annotation of poly(A) tail lengths and m6A RNA modifications.
+RegMod automates the simultaneous prediction and annotation of poly(A) tail lengths and m6A RNA modifications from Oxford Nanopore direct RNA sequencing data. An optional differential m6A analysis path using xPore is also available for experiments comparing conditions.
 
 ### Workflow steps:
 **1. Basecalling**
@@ -29,20 +29,25 @@ RegMod automates the simultaneous prediction and annotation of poly(A) tail leng
    - f5c index is used to index FASTA inputs for downstream signal-level analyses
      
 **3. Alignment**
-   - Reads are aligned to user-provided reference genome using minimap2
+   - Reads are aligned to the user-provided reference genome using minimap2
 
 **4. Binary Index SAM**
-   - Resulting SAM files are converted to BAM format, sorted, and indexed using SAMTools
-   - Alignment summary is also outputted
+   - SAM alignments are converted to BAM format, sorted, and indexed using SAMTools
+   - An alignment summary is also generated
 
-**5. Downstream Analysis (Two Parallel Paths):**
+**5. Downstream Analysis:**
+  
+  Following alignment and indexing, RegMod performs poly(A) tail length and m6A analyses through parallel paths:
    - m6A Path
-       - f5c eventalign aligns raw signals to the reference
+       - f5c eventalign aligns raw signals to the reference sequence
        - m6Anet predicts m6A modifications at single-nucleotide resolution
-       - A Python script annotates each m6A sites
+       - An annotation script associates predicted m6A sites with transcript and gene features.
+       - Optional xPore differential RNA modification analysis
+         - xPore dataprep processes the f5c eventalign output for each sample
+         - xPore differential analysis identifies sites with differential RNA modification levels between user-defined experimental conditions
    - PolyA Path
        - Nanopolish polyA is used to estimate poly(A) tail lengths from signal-level data
-       - A Python script annotates poly(A) tail lengths for each read
+       - An annotation script associates poly(A) tail length estimates with transcript and gene features.
      
 ## Usage
 
