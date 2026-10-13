@@ -89,7 +89,10 @@ nextflow run nf-core/regmod \
 | feature_start  | Start coordinate of the annotated feature                                                                  |
 | feature_end    | End coordinate of the annotated feature                                                                    |
 | fields 9-12    | m6Anet feaures (e.g., n_reads, probability_modified, kmer, mod_ratio)                                      |
-| fields 13-21   | Additional feature metadata (e.g., gene_id, transcript_id, biotype)                                        |
+| fields 13+     | Additional feature metadata: gene_id, transcript_id, then every other attribute present in the supplied GTF |
+
+> [!NOTE]
+> The metadata columns are taken directly from the attributes of the GTF file provided to the pipeline, so their names and number depend on the annotation source (e.g., one GTF may provide `gene_biotype` where another provides `gene_type`). Only `gene_id` and `transcript_id` are required in the GTF.
 
 **poly(A) annotation BED file:** Contains polyadenylated reads, predicted tail lengths, and corresponding annotations
 | Column Names   | Description                                                                                                |
@@ -100,8 +103,8 @@ nextflow run nf-core/regmod \
 | readname       | Nanopore read identifier                                                                                   |
 | polya_length   | Estimated poly(A) tail length from nanopolish polya                                                        |
 | strand         | Strand of the read (+ or -)                                                                                |
-| fields 7-12    | Additional feature metadata (e.g., gene_id, gene_name, transcript_id)                                      |
-| fields 13-18   | Additional nanopolish output columns (e.g., leader_start, polya_start, read_rate)                          |
+| fields 7-12    | Additional nanopolish output columns (e.g., leader_start, polya_start, read_rate)                          |
+| fields 13+     | Additional feature metadata: gene_id, transcript_id, then every other transcript-level attribute present in the supplied GTF |
  
 ### Filtering Annotation Files by Feature
 The m6A annotated BED files can be filtered using `awk` to extract only features of interest (e.g., gene, transcript, 3' UTR)
@@ -112,11 +115,11 @@ awk '$4 ~ /{feature_name}/' {m6A/polyA}_annotations.bed > {feature_name}_{m6A/po
 ```
 
 #### Examples:
-**Gene-level m6A sites:** This produces an annotation file containing only m6A sites overlapping gene-level features: gene_id, gene_name, gene_biotype 
+**Gene-level m6A sites:** This produces an annotation file containing only m6A sites overlapping gene-level features, with the gene-level attributes provided by the GTF (e.g., gene_id)
 ```
 awk '$4 ~ /gene/' m6A_annotations.bed > gene_m6A_annotations.bed
 ```
-**Transcript-level m6A sites:** This generates a file containing m6A sites annotated at the transcript level. Because transcripts are nested within genes, this file may include both transcript-level and gene-level metadata (gene_id, gene_name, gene_biotype, transcript_id, transcript_name, transcript_biotype)
+**Transcript-level m6A sites:** This generates a file containing m6A sites annotated at the transcript level. Because transcripts are nested within genes, this file may include both transcript-level and gene-level metadata (e.g., gene_id, transcript_id, and any other attributes provided by the GTF)
 ```
 awk '$4 ~ /transcript/' m6A_annotations.bed > transcript_m6A_annotations.bed
 ```
