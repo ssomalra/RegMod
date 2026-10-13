@@ -3,7 +3,10 @@ import pandas as pd
 import os
 import argparse
 
+import gtf_utils
+
 COORD_COLS = ["Chromosome", "Start", "End", "Strand"]
+SITE_COLS = ["transcript_id", "transcript_position", "n_reads", "probability_modified", "kmer", "mod_ratio"]
 
 # Load m6Anet sites and GTF annotations
 def load_input_data(m6A_sites, gtf_input):
@@ -12,9 +15,8 @@ def load_input_data(m6A_sites, gtf_input):
     print("First 5 rows of m6a df:")
     print(sites.head())
 
-    gtf = pr.read_gtf(gtf_input)
-    print("\nFirst 5 rows of GTF:")
-    print(gtf.head(5))
+    gtf = gtf_utils.load_gtf(gtf_input)
+    sites["transcript_id"] = gtf_utils.match_transcript_ids(sites["transcript_id"], gtf.transcript_id)
 
     return sites, gtf
 
@@ -34,12 +36,12 @@ def build_exon_dictionary(gtf):
             df = df.sort_values("Start")
         else:
             df = df.sort_values("Start", ascending=False)
-        
+
         # compute exon lengths
         df = df.copy()
         df["exon_len"] = df.End - df.Start
         exon_dict[tx_id] = df
-    
+
     return exon_dict
 
 
@@ -49,7 +51,7 @@ def tx_to_genome(tx_id, tx_pos, exon_dict):
 
     if tx_exons is None:
         return None
-    
+
     remaining = tx_pos
 
     for _, row in tx_exons.iterrows():
@@ -59,16 +61,16 @@ def tx_to_genome(tx_id, tx_pos, exon_dict):
                 gpos = row.Start + remaining
             else:
                 gpos = row.End - remaining - 1
-            
+
             return (
                 row.Chromosome,
                 gpos,
                 gpos + 1,
                 row.Strand
             )
-        
+
         remaining -= row.exon_len       # else, subtract this exon's length from transcript_pos and continue
-    
+
     return None
 
 
@@ -87,14 +89,14 @@ def map_transcript_positions(sites, exon_dict):
             coords.append([None, None, None, None])
         else:
             coords.append(list(coord))
-    
+
     sites[COORD_COLS] = pd.DataFrame(coords, index=sites.index,)
 
     return sites
 
 
 ##### ANNOTATE M6A COORDINATES USING GTF FILE #####
-def annotate_sites(sites, gtf):
+def annotate_sites(sites, gtf, gtf_df):
     """
     Annotate m6A genomic coordinates using GTF features
 
@@ -107,6 +109,9 @@ def annotate_sites(sites, gtf):
     valid_sites = sites.dropna(subset=COORD_COLS).copy()
     invalid_sites = sites[sites[COORD_COLS].isna().any(axis=1)].copy()
 
+    if valid_sites.empty:
+        return pd.DataFrame(), invalid_sites
+
     # run PyRanges on only valid sites
     valid_sites["Start"] = valid_sites["Start"].astype(int)
     valid_sites["End"] = valid_sites["End"].astype(int)
@@ -115,49 +120,52 @@ def annotate_sites(sites, gtf):
 
     # join gtf feature annotations to m6a_pr
     tx_hits = m6a_pr.join(gtf, strandedness="same")
+    if len(tx_hits) == 0:
+        return pd.DataFrame(), invalid_sites
+
     tx_hits = tx_hits[tx_hits.transcript_id == tx_hits.transcript_id_b]
+    tx_hits_df = tx_hits.df
 
-    # get gene-level annotations
-    gtf_genes = gtf.df[
-        (gtf.df.Feature == "gene") & 
-        (gtf.df.gene_id.isin(tx_hits.gene_id.unique()))
-        ].copy()
+    # get gene-level annotations (None if the GTF has no gene_id)
+    gtf_genes = gtf_utils.gene_table(gtf_df)
 
-    gtf_genes = gtf_genes.rename(columns={
-        "Start": "Start_b",
-        "End": "End_b",
-        "Strand": "Strand_b",
-        "transcript_id": "transcript_id_b"
-    })
+    if gtf_genes is not None:
+        gtf_genes = gtf_genes[gtf_genes.gene_id.isin(tx_hits_df.gene_id.unique())].copy()
 
-    site_rows = tx_hits.df[
-        ["Chromosome", "Start", "End", "Strand", "transcript_id", "transcript_position",
-        "n_reads", "probability_modified", "kmer", "mod_ratio", "gene_id",]
-    ].drop_duplicates()
+        gtf_genes = gtf_genes.rename(columns={
+            "Start": "Start_b",
+            "End": "End_b",
+            "Strand": "Strand_b",
+            "transcript_id": "transcript_id_b"
+        })
 
     # prepend a gene row to each site annotation
     final_rows = []
 
-    for (_, _), site_group in tx_hits.df.groupby(["transcript_id", "transcript_position"], sort=False):
+    for (_, _), site_group in tx_hits_df.groupby(["transcript_id", "transcript_position"], sort=False):
+        if gtf_genes is None:
+            final_rows.append(site_group)
+            continue
+
         transcript_row = site_group.iloc[0]
         gene_id = transcript_row["gene_id"]
         gene_row = gtf_genes[gtf_genes["gene_id"] == gene_id].copy()
 
         # copy m6a site information into gene row
-        for col in ["Chromosome", "Start", "End", "Strand", "transcript_id", "transcript_position", "n_reads", "probability_modified", "kmer", "mod_ratio"]:
+        for col in COORD_COLS + SITE_COLS:
             gene_row[col] = transcript_row[col]
 
-        gene_row = gene_row[tx_hits.df.columns]
+        gene_row = gene_row.reindex(columns=tx_hits_df.columns)
 
         final_rows.append(pd.concat([gene_row, site_group], ignore_index=True))
-    
+
     final_df = pd.concat(final_rows, ignore_index=True)
-    
+
     return final_df, invalid_sites
 
 
 # reorder columns, add missing columns to invalid sites, and combine valid and invalid annotations
-def format_output(final_df, invalid_sites):
+def format_output(final_df, invalid_sites, gtf_df):
     rename_dict = {
         "Chromosome": "chr",
         "Start": "mod_start",
@@ -168,26 +176,28 @@ def format_output(final_df, invalid_sites):
         "Start_b": "feature_start",
         "End_b": "feature_end"
     }
-    
+
     final_df = final_df.rename(columns=rename_dict)
     invalid_sites = invalid_sites.rename(columns=rename_dict)
-    
+
     final_cols = [
         "chr", "mod_start", "mod_end", "strand",                          # m6a coords
         "feature", "transcript_pos", "feature_start", "feature_end",      # GTF info
         "n_reads", "probability_modified", "kmer", "mod_ratio",           # m6a site confidence
-        "gene_id", "gene_name", "gene_type",                              # additional GTF info
-        "transcript_id", "transcript_name", "transcript_type",
-        "exon_number", "exon_id", "protein_id"
     ]
-    
+
+    # additional GTF info: gene_id and transcript_id first, then every other attribute the GTF provides
+    gtf_attrs = gtf_utils.attribute_columns(gtf_df)
+    final_cols += [c for c in ["gene_id", "transcript_id"] if c in gtf_attrs]
+    final_cols += [c for c in gtf_attrs if c not in final_cols]
+
     # add any missing columns to invalid rows
     for col in final_cols:
         if col not in invalid_sites.columns:
             invalid_sites[col] = None
         if col not in final_df.columns:
             final_df[col] = None
-    
+
     final_df = final_df[final_cols]
     invalid_sites = invalid_sites[final_cols]
 
@@ -195,7 +205,7 @@ def format_output(final_df, invalid_sites):
     output_df = pd.concat([final_df, invalid_sites], ignore_index=True)
     print("First 5 rows of annotated m6A sites output:")
     print(output_df.head())
-    
+
     return output_df
 
 
@@ -208,10 +218,11 @@ def save_output(df, sample_id):
 
 def annotate_m6A(m6A_sites, gtf_input, sample_id):
     sites, gtf = load_input_data(m6A_sites, gtf_input)
+    gtf_df = gtf.df
     exon_dict = build_exon_dictionary(gtf)
     sites = map_transcript_positions(sites, exon_dict)
-    final_df, invalid_sites = annotate_sites(sites, gtf)
-    output_df = format_output(final_df, invalid_sites)
+    final_df, invalid_sites = annotate_sites(sites, gtf, gtf_df)
+    output_df = format_output(final_df, invalid_sites, gtf_df)
     save_output(output_df, sample_id)
 
 
