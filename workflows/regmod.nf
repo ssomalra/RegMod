@@ -7,6 +7,7 @@ include { GUPPY_BASECALL         } from '../modules/local/guppy/main.nf'
 include { F5C_INDEX              } from '../modules/local/f5c/index/main.nf'
 include { MINIMAP2_ALIGN         } from '../modules/local/minimap/main.nf'
 include { SAMTOOLS               } from '../modules/local/samtools/main.nf'
+include { SPLIT_NANOPOLISH_FASTA } from '../modules/local/nanopolish/split/main.nf'
 include { NANOPOLISH_POLYA 	     } from '../modules/local/nanopolish/main.nf'
 include { COMBINE_NANOPOLISH_POLYA } from '../modules/local/nanopolish/combine/main.nf'
 include { ANNOTATE_POLYA         } from '../modules/local/annotate/annotate_polyA/main.nf'
@@ -46,21 +47,18 @@ workflow REGMOD {
 	    GUPPY_BASECALL.out.guppy
     )
 
-    // Split each sample's merged fasta round-robin into N independent chunks.
+    // MODULE: Split each sample's merged fasta round-robin into N independent chunks on disk.
     // This chunking is only used for the nanopolish poly(A) branch and does
     // not affect the full-fasta eventalign/m6A branch.
-    ch_chunk_fasta = F5C_INDEX.out.fasta
-        .splitFasta(by: 1, record: [id: true, seqString: true])
-        .groupTuple()
-        .flatMap { meta, records ->
-            records.withIndex().collect { record, i -> tuple(meta.id, i % params.nanopolish_chunks, record) }
-        }
-        .collectFile() { id, chunk, record ->
-            [ "${id}_chunk${chunk}.fasta", ">${record.id}\n${record.seqString}\n" ]
-        }
-        .map { file ->
-            def (id, chunk) = (file.baseName =~ /^(.+)_chunk(\d+)$/)[0][1..2]
-            tuple([id: "${id}_chunk${chunk}", sample: id, chunk: chunk as Integer], file)
+    SPLIT_NANOPOLISH_FASTA (
+        F5C_INDEX.out.fasta
+    )
+
+    ch_chunk_fasta = SPLIT_NANOPOLISH_FASTA.out.chunks
+        .transpose()
+        .map { meta, fasta ->
+            def chunk = (fasta.name =~ /_chunk(\d+)\.fasta$/)[0][1] as Integer
+            tuple([id: "${meta.id}_chunk${chunk}", sample: meta.id, chunk: chunk], fasta)
         }
 
     // MODULE: Run minimap2 on the full fasta and each round-robin chunk
