@@ -18,8 +18,8 @@ process ANNOTATE_POLYA {
 	"""
 	# run polyA annotation script
         python ${projectDir}/bin/polya_annotate.py \
-           --input $nanopolish_polya \
-           --gtf $gtf \
-	   --id ${meta.id}
+        	--input $nanopolish_polya \
+        	--gtf $gtf \
+			--id ${meta.id}
         """
 }
